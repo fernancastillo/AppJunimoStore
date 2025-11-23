@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="Theme.JunimoStoreApp" parent="android:Theme.Material.Light.NoActionBar" />
+
+    <style name="DatePickerTheme" parent="android:Theme.Material.Light.Dialog">
+        <item name="android:colorAccent">@color/azul_cielo</item>
+        <item name="android:colorPrimary">@color/amarillo_mostaza</item>
+        <item name="android:colorPrimaryDark">@color/amarillo_mostaza</item>
+    </style>
+
+</resources>
