@@ -1,6 +1,5 @@
 package com.ct.junimostoreapp.view
 
-import android.content.Context
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -47,15 +46,20 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import coil.compose.AsyncImage
+import coil.request.ImageRequest
+import com.ct.junimostoreapp.ProductoApplication
 import com.ct.junimostoreapp.R
 import com.ct.junimostoreapp.ui.theme.AmarilloMostaza
 import com.ct.junimostoreapp.ui.theme.AzulCielo
 import com.ct.junimostoreapp.viewmodel.ProductoViewModel
+import com.ct.junimostoreapp.viewmodel.ProductoViewModelFactory
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProductoScreen(navController: NavController, rut: String) {
-    val vm: ProductoViewModel = viewModel(factory = provideProductoViewModelFactory(LocalContext.current))
+    val context = LocalContext.current
+    val vm: ProductoViewModel = viewModel(factory = provideProductoViewModelFactory(context))
     val productos by vm.productos.collectAsState()
     val categorias by vm.categorias.collectAsState()
     var expanded by remember { mutableStateOf(false) }
@@ -124,7 +128,7 @@ fun ProductoScreen(navController: NavController, rut: String) {
                         ExposedDropdownMenu(
                             expanded = expanded,
                             onDismissRequest = { expanded = false },
-                            // ELIMINAMOS EL MODIFICADOR DE FONDO DE AQUÍ
+                            modifier = Modifier.background(AmarilloMostaza)
                         ) {
                             categorias.forEach { categoria ->
                                 DropdownMenuItem(
@@ -133,11 +137,9 @@ fun ProductoScreen(navController: NavController, rut: String) {
                                         vm.onFiltroCategoriaChange(categoria)
                                         expanded = false
                                     },
-                                    // APLICAMOS EL ESTILO DIRECTAMENTE AL ÍTEM
                                     colors = MenuDefaults.itemColors(
-                                        textColor = Color.Black, // Color del texto
+                                        textColor = Color.Black,
                                     ),
-                                    // APLICAMOS EL FONDO A CADA ÍTEM INDIVIDUAL
                                     modifier = Modifier.background(AmarilloMostaza)
                                 )
                                 if (categoria != categorias.last()) {
@@ -165,8 +167,11 @@ fun ProductoScreen(navController: NavController, rut: String) {
                                 modifier = Modifier.fillMaxSize().padding(8.dp),
                                 horizontalAlignment = Alignment.CenterHorizontally
                             ) {
-                                Image(
-                                    painter = painterResource(id = producto.imagen),
+                                AsyncImage(
+                                    model = ImageRequest.Builder(LocalContext.current)
+                                        .data(producto.imagen)
+                                        .error(R.drawable.junimo) // Imagen de respaldo en caso de error
+                                        .build(),
                                     contentDescription = producto.nombre,
                                     modifier = Modifier
                                         .height(150.dp)

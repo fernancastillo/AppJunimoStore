@@ -68,9 +68,8 @@ import kotlinx.coroutines.delay
 @Composable
 fun LoginScreen( // Define la pantalla de inicio de sesión.
     navController: NavController, // Controlador de navegación para moverse entre pantallas.
+    vm: LoginViewModel = viewModel(factory = LoginViewModelFactory((LocalContext.current.applicationContext as ProductoApplication).authRepository))
 ) {
-    val application = LocalContext.current.applicationContext as ProductoApplication
-    val vm: LoginViewModel = viewModel(factory = LoginViewModelFactory(application.authRepository))
     val state = vm.uiState // Obtiene el estado de la UI desde el ViewModel.
     var showPass by remember { mutableStateOf(false) } // Estado para controlar la visibilidad de la contraseña.
     var showSuccessDialog by remember { mutableStateOf(false) } // Estado para mostrar un diálogo de éxito al iniciar sesión.
@@ -147,6 +146,7 @@ fun LoginScreen( // Define la pantalla de inicio de sesión.
                     val textFieldColors = TextFieldDefaults.colors( // Define los colores para los campos de texto.
                         unfocusedContainerColor = AmarilloMostaza,
                         focusedContainerColor = AmarilloMostaza,
+                        cursorColor = AzulCielo, // <<< AQUÍ ESTÁ EL CAMBIO
                         unfocusedIndicatorColor = Color.Black,
                         focusedIndicatorColor = Color.Black,
                         unfocusedLabelColor = Color.Black,
@@ -184,7 +184,7 @@ fun LoginScreen( // Define la pantalla de inicio de sesión.
                         trailingIcon = { // Icono al final del campo de texto.
                             TextButton(onClick={showPass =!showPass}) // Botón para cambiar la visibilidad de la contraseña.
                             {
-                                Text(if(showPass) "Ocultar" else "Ver")
+                                Text(if(showPass) "Ocultar" else "Ver", color = Color.Black)
                             }
                         },
                         modifier =Modifier.fillMaxWidth(0.95f),

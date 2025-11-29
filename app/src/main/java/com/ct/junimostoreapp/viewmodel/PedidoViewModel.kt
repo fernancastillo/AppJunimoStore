@@ -8,6 +8,7 @@ import com.ct.junimostoreapp.data.repository.OrdenRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
 
 class PedidoViewModel(private val ordenRepository: OrdenRepository) : ViewModel() {
@@ -16,7 +17,11 @@ class PedidoViewModel(private val ordenRepository: OrdenRepository) : ViewModel(
 
     fun getPedidosPorRut(rut: String) {
         viewModelScope.launch {
-            _pedidos.value = ordenRepository.getOrdenesPorRun(rut)
+            ordenRepository.getOrdenesPorRun(rut)
+                .distinctUntilChanged()
+                .collect { listaDePedidos ->
+                    _pedidos.value = listaDePedidos
+                }
         }
     }
 }

@@ -71,47 +71,47 @@ import com.ct.junimostoreapp.ui.theme.AzulCielo
 import com.ct.junimostoreapp.ui.theme.JunimoStoreAppTheme
 import java.util.Calendar
 
-@RequiresApi(Build.VERSION_CODES.O) // Anotación que indica que esta función requiere Android 8.0 (API 26) o superior, debido al uso de `java.time`.
-@OptIn(ExperimentalMaterial3Api::class) // Habilita el uso de componentes de Material 3 que aún están en fase experimental.
+@RequiresApi(Build.VERSION_CODES.O)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun RegistroScreen( // Define la pantalla de registro de usuarios.
-    navController: NavController, // Controlador de navegación para moverse a otras pantallas.
+fun RegistroScreen(
+    navController: NavController,
 ) {
     val application = LocalContext.current.applicationContext as ProductoApplication
     val vm: RegistroViewModel = viewModel(factory = RegistroViewModelFactory(application.authRepository))
-    val state = vm.uiState // Obtiene el estado actual de la UI desde el ViewModel.
-    val context = LocalContext.current // Obtiene el contexto actual, necesario para el DatePickerDialog.
-    val showDatePicker = remember { mutableStateOf(false) } // Estado para controlar la visibilidad del selector de fecha.
-    var showSuccessDialog by remember { mutableStateOf(false) } // Estado para mostrar un diálogo de éxito tras el registro.
+    val state = vm.uiState
+    val context = LocalContext.current
+    var showDatePicker by remember { mutableStateOf(false) }
+    var showSuccessDialog by remember { mutableStateOf(false) }
 
-    var regionExpanded by remember { mutableStateOf(false) } // Estado para el menú desplegable de regiones.
-    var comunaExpanded by remember { mutableStateOf(false) } // Estado para el menú desplegable de comunas.
-    var showPassword by remember { mutableStateOf(false) } // Estado para la visibilidad de la contraseña.
-    var showConfirmPassword by remember { mutableStateOf(false) } // Estado para la visibilidad de la confirmación de contraseña.
+    var regionExpanded by remember { mutableStateOf(false) }
+    var comunaExpanded by remember { mutableStateOf(false) }
+    var showPassword by remember { mutableStateOf(false) }
+    var showConfirmPassword by remember { mutableStateOf(false) }
 
-    if (showDatePicker.value) { // Si `showDatePicker` es verdadero, se muestra el diálogo de selección de fecha.
-        val calendar = Calendar.getInstance() // Obtiene una instancia del calendario.
-        val datePickerDialog = DatePickerDialog( // Crea el diálogo para seleccionar la fecha.
-            context, // Contexto de la aplicación.
-            R.style.DatePickerTheme, // Tema personalizado para el diálogo.
-            { _, year, month, dayOfMonth -> // Lambda que se ejecuta al seleccionar una fecha.
-                val formattedDate = String.format("%02d-%02d-%d", dayOfMonth, month + 1, year) // Formatea la fecha seleccionada.
-                vm.onFechaNacimientoChange(formattedDate) // Actualiza la fecha en el ViewModel.
+    if (showDatePicker) {
+        val calendar = Calendar.getInstance()
+        DatePickerDialog(
+            context,
+            R.style.DatePickerTheme,
+            { _, year, month, dayOfMonth ->
+                val formattedDate = String.format("%02d-%02d-%d", dayOfMonth, month + 1, year)
+                vm.onFechaNacimientoChange(formattedDate)
+                showDatePicker = false // <<< LA SOLUCIÓN: Cerramos el diálogo aquí
             },
-            calendar.get(Calendar.YEAR), // Año inicial.
-            calendar.get(Calendar.MONTH), // Mes inicial.
-            calendar.get(Calendar.DAY_OF_MONTH) // Día inicial.
-        )
-        datePickerDialog.setOnDismissListener { showDatePicker.value = false } // Oculta el diálogo si se cancela.
-        datePickerDialog.setButton(DatePickerDialog.BUTTON_POSITIVE, "Aceptar", datePickerDialog) // Botón de confirmación.
-        datePickerDialog.setButton(DatePickerDialog.BUTTON_NEGATIVE, "Cancelar", datePickerDialog) // Botón de cancelación.
-        datePickerDialog.show() // Muestra el diálogo.
+            calendar.get(Calendar.YEAR),
+            calendar.get(Calendar.MONTH),
+            calendar.get(Calendar.DAY_OF_MONTH)
+        ).apply {
+            setOnDismissListener { showDatePicker = false } // Aseguramos que se cierre si el usuario toca fuera
+            show()
+        }
     }
 
-    JunimoStoreAppTheme { // Aplica el tema de la aplicación.
-        Scaffold( // Estructura de la pantalla.
+    JunimoStoreAppTheme {
+        Scaffold(
             topBar = {
-                TopAppBar( // Barra de aplicación superior.
+                TopAppBar(
                     title = { Text("Registro de Usuario") },
                     colors = TopAppBarDefaults.topAppBarColors(
                         containerColor = AmarilloMostaza
@@ -119,29 +119,29 @@ fun RegistroScreen( // Define la pantalla de registro de usuarios.
                 )
             }
         ) { innerPadding ->
-            Box( // Contenedor que permite superponer elementos.
+            Box(
                 modifier = Modifier
-                    .padding(innerPadding) // Aplica el padding de la barra superior.
+                    .padding(innerPadding)
                     .fillMaxSize()
             ) {
                 Image(
-                    painter = painterResource(id = R.drawable.fondostardew), // Imagen de fondo.
+                    painter = painterResource(id = R.drawable.fondostardew),
                     contentDescription = null,
-                    contentScale = ContentScale.Crop, // Escala la imagen para que llene el contenedor.
+                    contentScale = ContentScale.Crop,
                     modifier = Modifier.fillMaxSize()
                 )
-                Column( // Columna que organiza los campos del formulario.
+                Column(
                     modifier = Modifier
                         .fillMaxSize()
                         .padding(16.dp)
-                        .verticalScroll(rememberScrollState()), // Permite el desplazamiento vertical.
+                        .verticalScroll(rememberScrollState()),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    val shadow = Shadow(color = Color.Black.copy(alpha = 0.8f), offset = Offset(2f, 2f), blurRadius = 4f) // Estilo de sombra para el texto.
-                    val textStyle = TextStyle(color = Color.White, shadow = shadow) // Estilo de texto para las etiquetas.
+                    val shadow = Shadow(color = Color.Black.copy(alpha = 0.8f), offset = Offset(2f, 2f), blurRadius = 4f)
+                    val textStyle = TextStyle(color = Color.White, shadow = shadow)
 
                     Image(
-                        painter = painterResource(id = R.drawable.registro), // Imagen de cabecera.
+                        painter = painterResource(id = R.drawable.registro),
                         contentDescription = "Registro",
                         modifier = Modifier
                             .fillMaxWidth()
@@ -151,7 +151,7 @@ fun RegistroScreen( // Define la pantalla de registro de usuarios.
 
                     Spacer(modifier = Modifier.height(32.dp))
 
-                    val textFieldColors = OutlinedTextFieldDefaults.colors( // Colores personalizados para los campos de texto.
+                    val textFieldColors = OutlinedTextFieldDefaults.colors(
                         unfocusedContainerColor = AmarilloMostaza,
                         focusedContainerColor = AmarilloMostaza,
                         cursorColor = AzulCielo,
@@ -161,9 +161,9 @@ fun RegistroScreen( // Define la pantalla de registro de usuarios.
 
                     Text("Ingrese su RUN", style = textStyle)
                     Spacer(modifier = Modifier.height(4.dp))
-                    OutlinedTextField( // Campo de texto para el RUN.
+                    OutlinedTextField(
                         value = state.run,
-                        onValueChange = vm::onRunChange, // Actualiza el RUN en el ViewModel.
+                        onValueChange = vm::onRunChange,
                         label = { Text("RUN") },
                         modifier = Modifier.fillMaxWidth(),
                         colors = textFieldColors
@@ -172,7 +172,7 @@ fun RegistroScreen( // Define la pantalla de registro de usuarios.
 
                     Text("Ingrese su nombre", style = textStyle)
                     Spacer(modifier = Modifier.height(4.dp))
-                    OutlinedTextField( // Campo de texto para el nombre.
+                    OutlinedTextField(
                         value = state.nombre,
                         onValueChange = vm::onNombreChange,
                         label = { Text("Nombre") },
@@ -183,7 +183,7 @@ fun RegistroScreen( // Define la pantalla de registro de usuarios.
 
                     Text("Ingrese sus apellidos", style = textStyle)
                     Spacer(modifier = Modifier.height(4.dp))
-                    OutlinedTextField( // Campo de texto para los apellidos.
+                    OutlinedTextField(
                         value = state.apellidos,
                         onValueChange = vm::onApellidosChange,
                         label = { Text("Apellidos") },
@@ -194,7 +194,7 @@ fun RegistroScreen( // Define la pantalla de registro de usuarios.
 
                     Text("Ingrese su correo", style = textStyle)
                     Spacer(modifier = Modifier.height(4.dp))
-                    OutlinedTextField( // Campo de texto para el correo.
+                    OutlinedTextField(
                         value = state.correo,
                         onValueChange = vm::onCorreoChange,
                         label = { Text("Correo") },
@@ -205,14 +205,14 @@ fun RegistroScreen( // Define la pantalla de registro de usuarios.
 
                     Text("Ingrese su contraseña", style = textStyle)
                     Spacer(modifier = Modifier.height(4.dp))
-                    OutlinedTextField( // Campo de texto para la contraseña.
+                    OutlinedTextField(
                         value = state.contrasenha,
                         onValueChange = vm::onContrasenhaChange,
                         label = { Text("Contraseña") },
                         modifier = Modifier.fillMaxWidth(),
-                        visualTransformation = if (showPassword) VisualTransformation.None else PasswordVisualTransformation(), // Oculta o muestra la contraseña.
-                        trailingIcon = { // Icono al final del campo.
-                            IconButton(onClick = { showPassword = !showPassword }) { // Botón para alternar la visibilidad.
+                        visualTransformation = if (showPassword) VisualTransformation.None else PasswordVisualTransformation(),
+                        trailingIcon = {
+                            IconButton(onClick = { showPassword = !showPassword }) {
                                 Icon(
                                     imageVector = if (showPassword) Icons.Filled.VisibilityOff else Icons.Filled.Visibility,
                                     contentDescription = if (showPassword) "Ocultar contraseña" else "Mostrar contraseña",
@@ -226,7 +226,7 @@ fun RegistroScreen( // Define la pantalla de registro de usuarios.
 
                     Text("Confirme su contraseña", style = textStyle)
                     Spacer(modifier = Modifier.height(4.dp))
-                    OutlinedTextField( // Campo de texto para confirmar la contraseña.
+                    OutlinedTextField(
                         value = state.confirmContrasenha,
                         onValueChange = vm::onConfirmContrasenhaChange,
                         label = { Text("Confirmar Contraseña") },
@@ -247,7 +247,7 @@ fun RegistroScreen( // Define la pantalla de registro de usuarios.
 
                     Text("Ingrese su teléfono (opcional)", style = textStyle)
                     Spacer(modifier = Modifier.height(4.dp))
-                    OutlinedTextField( // Campo de texto para el teléfono.
+                    OutlinedTextField(
                         value = state.telefono,
                         onValueChange = vm::onTelefonoChange,
                         label = { Text("Teléfono (opcional)") },
@@ -258,13 +258,13 @@ fun RegistroScreen( // Define la pantalla de registro de usuarios.
 
                     Text("Ingrese su fecha de nacimiento", style = textStyle)
                     Spacer(modifier = Modifier.height(4.dp))
-                    OutlinedTextField( // Campo de texto para la fecha de nacimiento (no editable, abre el diálogo).
+                    OutlinedTextField(
                         value = state.fechaNacimiento,
                         onValueChange = {},
                         label = { Text("Fecha de Nacimiento") },
                         modifier = Modifier
                             .fillMaxWidth()
-                            .clickable { showDatePicker.value = true }, // Muestra el selector de fecha al hacer clic.
+                            .clickable { showDatePicker = true },
                         trailingIcon = {
                             Icon(
                                 imageVector = Icons.Default.DateRange,
@@ -277,13 +277,13 @@ fun RegistroScreen( // Define la pantalla de registro de usuarios.
                             disabledLabelColor = Color.Black,
                             disabledTrailingIconColor = Color.Black
                         ),
-                        enabled = false // El campo no es editable directamente.
+                        enabled = false
                     )
                     Spacer(modifier = Modifier.height(8.dp))
 
                     Text("Ingrese su región", style = textStyle)
                     Spacer(modifier = Modifier.height(4.dp))
-                    ExposedDropdownMenuBox( // Contenedor para el menú desplegable de regiones.
+                    ExposedDropdownMenuBox(
                         expanded = regionExpanded,
                         onExpandedChange = { regionExpanded = !regionExpanded }
                     ) {
@@ -291,23 +291,23 @@ fun RegistroScreen( // Define la pantalla de registro de usuarios.
                             value = state.region,
                             onValueChange = {},
                             label = { Text("Región") },
-                            readOnly = true, // El campo no se puede editar manualmente.
+                            readOnly = true,
                             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = regionExpanded) },
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .menuAnchor(MenuAnchorType.PrimaryNotEditable), // Ancla el menú al campo de texto.
+                                .menuAnchor(MenuAnchorType.PrimaryNotEditable),
                             colors = textFieldColors
                         )
-                        ExposedDropdownMenu( // El menú desplegable.
+                        ExposedDropdownMenu(
                             expanded = regionExpanded,
                             onDismissRequest = { regionExpanded = false }
                         ) {
-                            state.regiones.forEach { region -> // Itera sobre la lista de regiones del ViewModel.
-                                DropdownMenuItem( // Cada elemento del menú.
+                            state.regiones.forEach { region ->
+                                DropdownMenuItem(
                                     text = { Text(region.nombre) },
-                                    onClick = { // Al hacer clic en una región.
-                                        vm.onRegionChange(region.nombre) // Actualiza la región en el ViewModel.
-                                        regionExpanded = false // Cierra el menú.
+                                    onClick = {
+                                        vm.onRegionChange(region.nombre)
+                                        regionExpanded = false
                                     }
                                 )
                             }
@@ -317,7 +317,7 @@ fun RegistroScreen( // Define la pantalla de registro de usuarios.
 
                     Text("Ingrese su comuna", style = textStyle)
                     Spacer(modifier = Modifier.height(4.dp))
-                    ExposedDropdownMenuBox( // Contenedor para el menú desplegable de comunas.
+                    ExposedDropdownMenuBox(
                         expanded = comunaExpanded,
                         onExpandedChange = { comunaExpanded = !comunaExpanded }
                     ) {
@@ -331,18 +331,18 @@ fun RegistroScreen( // Define la pantalla de registro de usuarios.
                                 .fillMaxWidth()
                                 .menuAnchor(MenuAnchorType.PrimaryNotEditable),
                             colors = textFieldColors,
-                            enabled = state.comunas.isNotEmpty() // Habilita el campo solo si hay comunas disponibles.
+                            enabled = state.comunas.isNotEmpty()
                         )
                         ExposedDropdownMenu(
                             expanded = comunaExpanded,
                             onDismissRequest = { comunaExpanded = false }
                         ) {
-                            state.comunas.forEach { comuna -> // Itera sobre la lista de comunas disponibles.
+                            state.comunas.forEach { comuna ->
                                 DropdownMenuItem(
                                     text = { Text(comuna) },
                                     onClick = {
-                                        vm.onComunaChange(comuna) // Actualiza la comuna en el ViewModel.
-                                        comunaExpanded = false // Cierra el menú.
+                                        vm.onComunaChange(comuna)
+                                        comunaExpanded = false
                                     }
                                 )
                             }
@@ -352,7 +352,7 @@ fun RegistroScreen( // Define la pantalla de registro de usuarios.
 
                     Text("Ingrese su dirección", style = textStyle)
                     Spacer(modifier = Modifier.height(4.dp))
-                    OutlinedTextField( // Campo de texto para la dirección.
+                    OutlinedTextField(
                         value = state.direccion,
                         onValueChange = vm::onDireccionChange,
                         label = { Text("Dirección") },
@@ -360,7 +360,7 @@ fun RegistroScreen( // Define la pantalla de registro de usuarios.
                         colors = textFieldColors
                     )
 
-                    if (state.error != null) { // Muestra un mensaje de error si existe en el estado.
+                    if (state.error != null) {
                         Spacer(modifier = Modifier.height(8.dp))
                         Text(
                             text = state.error, 
@@ -371,13 +371,13 @@ fun RegistroScreen( // Define la pantalla de registro de usuarios.
 
                     Spacer(modifier = Modifier.height(16.dp))
 
-                    Button( // Botón para enviar el formulario de registro.
+                    Button(
                         onClick = {
-                            vm.submit { // Llama a la función de envío del ViewModel.
-                                showSuccessDialog = true // Si el registro es exitoso, muestra el diálogo de éxito.
+                            vm.submit {
+                                showSuccessDialog = true
                             }
                         },
-                        enabled = !state.isLoading, // Se deshabilita durante la carga.
+                        enabled = !state.isLoading,
                         modifier = Modifier.fillMaxWidth(0.6f),
                         colors = ButtonDefaults.buttonColors(
                             containerColor = AzulCielo
@@ -388,7 +388,7 @@ fun RegistroScreen( // Define la pantalla de registro de usuarios.
 
                     Spacer(modifier = Modifier.height(16.dp))
 
-                    Row( // Fila para el enlace de inicio de sesión.
+                    Row(
                         horizontalArrangement = Arrangement.Center,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
@@ -399,7 +399,7 @@ fun RegistroScreen( // Define la pantalla de registro de usuarios.
                                 shadow = shadow
                             )
                         )
-                        TextButton(onClick = { navController.popBackStack() }) { // Botón para volver a la pantalla anterior (inicio de sesión).
+                        TextButton(onClick = { navController.popBackStack() }) { 
                             Text(
                                 text = "Inicia sesión",
                                 style = TextStyle(
@@ -414,16 +414,16 @@ fun RegistroScreen( // Define la pantalla de registro de usuarios.
             }
         }
 
-        if (showSuccessDialog) { // Si el registro fue exitoso, muestra este diálogo.
+        if (showSuccessDialog) {
             AlertDialog(
-                onDismissRequest = { }, // No se puede cerrar tocando fuera.
+                onDismissRequest = { },
                 title = { Text("¡Registro exitoso!") },
                 text = { Text("Tu cuenta ha sido creada. Ahora puedes iniciar sesión.") },
-                confirmButton = { // Botón para confirmar y volver al inicio de sesión.
+                confirmButton = {
                     Button(
                         onClick = {
                             showSuccessDialog = false
-                            navController.popBackStack() // Vuelve a la pantalla de inicio de sesión.
+                            navController.popBackStack()
                         },
                         colors = ButtonDefaults.buttonColors(containerColor = AmarilloMostaza)
                     ) {

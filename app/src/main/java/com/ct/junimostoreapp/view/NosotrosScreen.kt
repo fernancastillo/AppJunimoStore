@@ -11,6 +11,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -19,6 +21,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.Font
@@ -29,6 +32,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.ct.junimostoreapp.R
+import com.ct.junimostoreapp.ui.theme.AmarilloMostaza
 import com.ct.junimostoreapp.ui.theme.AzulCielo
 
 @OptIn(ExperimentalMaterial3Api::class) // Habilita el uso de componentes de Material 3 que aún están en fase experimental.
@@ -227,6 +231,13 @@ fun NosotrosScreen(navController: NavController, rut: String) { // Define la pan
                             text = "En Junimos Store no solo vendemos productos, creamos experiencias. Formamos parte de una comunidad vibrante de jugadores que comparten consejos, historias y su amor por Stardew Valley.",
                             textAlign = TextAlign.Center
                         )
+                        Spacer(modifier = Modifier.height(16.dp))
+                        Button(
+                            onClick = { navController.navigate("lugares_reunion/$rut") },
+                            colors = ButtonDefaults.buttonColors(containerColor = AmarilloMostaza)
+                        ) {
+                            Text("Lugares de reunión", color = Color.Black)
+                        }
                     }
                 }
                 Spacer(modifier = Modifier.height(16.dp))

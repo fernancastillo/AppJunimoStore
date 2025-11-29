@@ -4,40 +4,42 @@ import com.ct.junimostoreapp.data.dao.OrdenDao
 import com.ct.junimostoreapp.data.model.Orden
 import com.ct.junimostoreapp.data.model.OrdenConProductos
 import com.ct.junimostoreapp.data.model.ProductoOrden
+import kotlinx.coroutines.flow.Flow
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
 class OrdenRepository(private val ordenDao: OrdenDao) {
+    suspend fun crearOrden(rut: String, productos: List<ProductoOrden>, total: Int) {
+        val ultimoNumeroOrden = ordenDao.getUltimoNumeroOrden()
+        val nuevoNumero = if (ultimoNumeroOrden == null) {
+            1001 // Es la primera orden
+        } else {
+            val numero = ultimoNumeroOrden.removePrefix("SO").toIntOrNull() ?: 1000
+            numero + 1
+        }
 
-    suspend fun getOrdenes(): List<OrdenConProductos> {
-        return ordenDao.getOrdenesConProductos()
+        val numeroOrdenFormateado = "SO$nuevoNumero"
+        val fecha = SimpleDateFormat("dd-MM-yyyy", Locale.getDefault()).format(Date())
+        val orden = Orden(
+            numeroOrden = numeroOrdenFormateado,
+            run = rut,
+            fecha = fecha,
+            total = total,
+            estadoEnvio = "En preparación"
+        )
+        val productosConNumeroOrden = productos.map { it.copy(ordenNumeroOrden = numeroOrdenFormateado) }
+
+        ordenDao.insertOrden(orden)
+        ordenDao.insertProductosOrden(productosConNumeroOrden)
     }
 
-    suspend fun getOrdenesPorRun(run: String): List<OrdenConProductos> {
+    fun getOrdenesPorRun(run: String): Flow<List<OrdenConProductos>> {
         return ordenDao.getOrdenesConProductosPorRun(run)
     }
 
-    suspend fun crearOrden(rut: String, productos: List<ProductoOrden>, total: Int) {
-        val ultimoNumeroOrden = ordenDao.getOrdenesConProductos().lastOrNull()?.orden?.numeroOrden ?: "SO1000"
-        val ultimoNumero = ultimoNumeroOrden.substring(2).toInt()
-        val nuevoNumero = ultimoNumero + 1
-        val nuevoNumeroOrden = "SO$nuevoNumero"
-
-        val nuevaOrden = Orden(
-            numeroOrden = nuevoNumeroOrden,
-            fecha = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()).format(Date()),
-            run = rut,
-            estadoEnvio = "Pendiente",
-            total = total
-        )
-        ordenDao.insertOrden(nuevaOrden)
-
-        val productosConIdDeOrden = productos.map {
-            it.ordenNumeroOrden = nuevoNumeroOrden
-            it
-        }
-        ordenDao.insertProductosOrden(productosConIdDeOrden)
+    fun getOrdenesConProductos(): Flow<List<OrdenConProductos>> {
+        return ordenDao.getOrdenesConProductos()
     }
 
     suspend fun removeOrden(orden: Orden) {
@@ -45,26 +47,12 @@ class OrdenRepository(private val ordenDao: OrdenDao) {
     }
 
     suspend fun updateOrden(orden: Orden) {
-        ordenDao.insertOrden(orden)
+        ordenDao.updateOrden(orden)
     }
 
-    suspend fun getTotalOrdenes(): Int {
-        return ordenDao.getTotalOrdenes()
-    }
-
-    suspend fun getOrdenesPendientes(): Int {
-        return ordenDao.getOrdenesCountByEstado("Pendiente")
-    }
-
-    suspend fun getOrdenesEnviadas(): Int {
-        return ordenDao.getOrdenesCountByEstado("Enviado")
-    }
-
-    suspend fun getOrdenesEntregadas(): Int {
-        return ordenDao.getOrdenesCountByEstado("Entregado")
-    }
-
-    suspend fun getOrdenesCanceladas(): Int {
-        return ordenDao.getOrdenesCountByEstado("Cancelado")
-    }
+    suspend fun getTotalOrdenes(): Int = ordenDao.getTotalOrdenes()
+    suspend fun getOrdenesPendientes(): Int = ordenDao.getOrdenesCountByEstado("Pendiente")
+    suspend fun getOrdenesEnviadas(): Int = ordenDao.getOrdenesCountByEstado("Enviado")
+    suspend fun getOrdenesEntregadas(): Int = ordenDao.getOrdenesCountByEstado("Entregado")
+    suspend fun getOrdenesCanceladas(): Int = ordenDao.getOrdenesCountByEstado("Cancelado")
 }

@@ -284,7 +284,20 @@ fun CarritoScreen(navController: NavController, rut: String, carritoViewModel: C
                 )
                 Spacer(modifier = Modifier.height(16.dp))
                 if (carritoViewModel.cartItems.isEmpty()) {
-                    Text(text = "El carrito está vacío")
+                    Card(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 8.dp),
+                        colors = CardDefaults.cardColors(
+                            containerColor = AzulCielo
+                        )
+                    ) {
+                        Text(
+                            text = "El carrito está vacío",
+                            modifier = Modifier.padding(16.dp),
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
                 } else {
                     LazyColumn(modifier = Modifier.weight(1f)) {
                         items(carritoViewModel.cartItems) { item ->

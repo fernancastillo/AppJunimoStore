@@ -12,6 +12,7 @@ import com.ct.junimostoreapp.data.repository.OrdenRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
 
 class AdminOrdenesViewModel(private val ordenRepository: OrdenRepository) : ViewModel() {
@@ -42,12 +43,12 @@ class AdminOrdenesViewModel(private val ordenRepository: OrdenRepository) : View
         private set
 
     init {
-        loadOrdenes()
-    }
-
-    private fun loadOrdenes() {
         viewModelScope.launch {
-            _ordenes.value = ordenRepository.getOrdenes()
+            ordenRepository.getOrdenesConProductos()
+                .distinctUntilChanged()
+                .collect { listaDeOrdenes ->
+                    _ordenes.value = listaDeOrdenes
+                }
         }
     }
 
@@ -67,13 +68,9 @@ class AdminOrdenesViewModel(private val ordenRepository: OrdenRepository) : View
     }
 
     fun onDialogDismiss() {
-        val wasSuccess = showSuccessDialog
         showConfirmDialog = false
         showSuccessDialog = false
         selectedOrden = null
-        if (wasSuccess) {
-            loadOrdenes()
-        }
     }
 
     fun onEditOrdenClick(orden: Orden) {
@@ -88,7 +85,6 @@ class AdminOrdenesViewModel(private val ordenRepository: OrdenRepository) : View
 
     fun onEditSuccessDialogDismiss() {
         showEditSuccessDialog = false
-        loadOrdenes()
     }
 
     fun onEditEstadoEnvioChange(value: String) {

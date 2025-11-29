@@ -28,6 +28,7 @@ import com.ct.junimostoreapp.view.ContactoScreen
 import com.ct.junimostoreapp.view.DashboardScreen
 import com.ct.junimostoreapp.view.DrawerMenu
 import com.ct.junimostoreapp.view.EditarPerfilScreen
+import com.ct.junimostoreapp.view.LugaresReunionScreen
 import com.ct.junimostoreapp.view.NosotrosScreen
 import com.ct.junimostoreapp.view.PedidoScreen
 import com.ct.junimostoreapp.view.PerfilScreen
@@ -106,6 +107,12 @@ fun AppNav(){ // Define la navegación principal de la aplicación.
             backStackEntry ->
             val rut = backStackEntry.arguments?.getString("rut") ?: ""
             NosotrosScreen(navController = navController, rut = rut)
+        }
+
+        composable("lugares_reunion/{rut}", arguments = listOf(navArgument("rut") { type = NavType.StringType })) { // Define la pantalla "Sobre Nosotros".
+            backStackEntry ->
+            val rut = backStackEntry.arguments?.getString("rut") ?: ""
+            LugaresReunionScreen(navController = navController, rut = rut)
         }
 
         composable("blogs/{rut}", arguments = listOf(navArgument("rut") { type = NavType.StringType })) { // Define la pantalla de blogs.
